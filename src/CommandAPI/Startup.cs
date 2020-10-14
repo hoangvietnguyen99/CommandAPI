@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Npgsql;
 
 namespace CommandAPI
 {
@@ -25,7 +26,13 @@ namespace CommandAPI
 
     public void ConfigureServices(IServiceCollection services)
     {
-      services.AddDbContext<CommandContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgreSQLConnection")));
+      var builder = new NpgsqlConnectionStringBuilder();
+      builder.ConnectionString = Configuration.GetConnectionString("PostgreSQLConnection");
+      builder.Username = Configuration["UserID"];
+      builder.Password = Configuration["Password"];
+
+      // services.AddDbContext<CommandContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgreSQLConnection")));
+      services.AddDbContext<CommandContext>(options => options.UseNpgsql(builder.ConnectionString));
       services.AddControllers();
       // services.AddScoped<ICommandAPIRepo, MockCommandAPIRepo>(); //use the service collection: services to register our ICommandAPIRepo with MockCommandAPIRepo
       services.AddScoped<ICommandAPIRepo, SqlCommandAPIRepo>();
