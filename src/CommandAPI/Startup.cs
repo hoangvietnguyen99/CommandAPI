@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using CommandAPI.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json.Serialization;
 using Npgsql;
 
 namespace CommandAPI
@@ -33,9 +35,13 @@ namespace CommandAPI
 
       // services.AddDbContext<CommandContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgreSQLConnection")));
       services.AddDbContext<CommandContext>(options => options.UseNpgsql(builder.ConnectionString));
-      services.AddControllers();
+      services.AddControllers().AddNewtonsoftJson(s => {
+        s.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+      });
       // services.AddScoped<ICommandAPIRepo, MockCommandAPIRepo>(); //use the service collection: services to register our ICommandAPIRepo with MockCommandAPIRepo
       services.AddScoped<ICommandAPIRepo, SqlCommandAPIRepo>();
+
+      services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
